@@ -1,0 +1,39 @@
+{
+  "possible_conditions": [
+    {
+      "condition_id": "unknown",
+      "name": "Unspecified Condition",
+      "description": "Your symptoms do not clearly match any specific condition in our database.",
+      "probability": 0,
+      "matching_symptoms": 0,
+      "total_symptoms": 0,
+      "severity": 1,
+      "triage_level": "Medical consultation",
+      "medical_specialty": "General Practice"
+    },
+    {
+      "condition_id": "influenza",
+      "name": "Influenza",
+      "description": "A viral infection that attacks respiratory system",
+      "probability": 25,
+      "matching_symptoms": 1,
+      "total_symptoms": 4,
+      "severity": 2,
+      "triage_level": "Non-urgent medical care",
+      "medical_specialty": "General Practice"
+    }
+  ],
+  "recommendations": [
+    "Please consult a healthcare professional for proper diagnosis."
+  ],
+  "identified_symptoms": [
+    {
+      "id": "fever",
+      "name": "Fever",
+      "description": "Elevated body temperature above normal range"
+    }
+  ],
+  "unidentified_symptoms": [],
+  "disclaimer": "This is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.",
+  "analysis_id": "96defef9-39a8-4a45-bb82-3dc031ca2b3f"
+}

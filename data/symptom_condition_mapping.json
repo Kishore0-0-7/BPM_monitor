@@ -1,0 +1,13 @@
+{
+  "common_cold": [
+    "headache",
+    "cough",
+    "fatigue"
+  ],
+  "influenza": [
+    "fever",
+    "headache",
+    "fatigue",
+    "cough"
+  ]
+}

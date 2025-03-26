@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}Heart Rate Monitor - HealthAssist AI{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h2 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Heart Rate Monitor</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="video-container mb-4 text-center">
+                            <div id="video-placeholder" class="rounded bg-light d-flex align-items-center justify-content-center" style="height: 480px;">
+                                <div class="text-center">
+                                    <i class="fas fa-video mb-3" style="font-size: 3rem;"></i>
+                                    <h4>Camera feed will appear here</h4>
+                                    <p class="text-muted">Click "Start Monitoring" to begin</p>
+                                </div>
+                            </div>
+                            <img id="video-feed" class="img-fluid rounded border d-none" alt="Video Feed">
+                        </div>
+                        
+                        <div class="d-flex justify-content-center mb-4">
+                            <button id="start-btn" class="btn btn-success me-3">
+                                <i class="fas fa-play me-1"></i> Start Monitoring
+                            </button>
+                            <button id="stop-btn" class="btn btn-danger" disabled>
+                                <i class="fas fa-stop me-1"></i> Stop Monitoring
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Current Heart Rate</h5>
+                                <div id="bpm-display">
+                                    <span id="bpm-value">--</span>
+                                    <small>BPM</small>
+                                </div>
+                                <div id="bpm-status" class="badge bg-secondary mb-3">Inactive</div>
+                                <div id="bpm-gauge"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Heart Rate Categories</h5>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Bradycardia (Low)
+                                    <span class="badge bg-warning rounded-pill">Below 60 BPM</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Normal
+                                    <span class="badge bg-success rounded-pill">60-100 BPM</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Tachycardia (High)
+                                    <span class="badge bg-danger rounded-pill">Above 100 BPM</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">How it works</h5>
+                                <p class="card-text small">This tool uses photoplethysmography (PPG) to detect subtle color changes in your face that correspond to blood flow. The algorithm analyzes these changes to calculate your heart rate.</p>
+                                <p class="card-text small text-muted">For best results:</p>
+                                <ul class="small text-muted">
+                                    <li>Ensure good lighting on your face</li>
+                                    <li>Stay relatively still during measurement</li>
+                                    <li>Position your face clearly in the camera</li>
+                                    <li>Allow 10-15 seconds for initial calibration</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-4">
+                    <h5><i class="fas fa-info-circle me-2"></i>What's next?</h5>
+                    <p class="mb-2">After measuring your heart rate, you can:</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ url_for('main.symptom_checker') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-stethoscope me-1"></i> Check Your Symptoms
+                        </a>
+                        <a href="{{ url_for('main.combined_assessment') }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-clipboard-check me-1"></i> Get Complete Health Assessment
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/gauge-chart@0.5.3/dist/bundle.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM elements
+        const videoPlaceholder = document.getElementById('video-placeholder');
+        const videoFeed = document.getElementById('video-feed');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const bpmValue = document.getElementById('bpm-value');
+        const bpmStatus = document.getElementById('bpm-status');
+        const bpmGauge = document.getElementById('bpm-gauge');
+        
+        // BPM monitoring state
+        let isMonitoring = false;
+        let updateInterval;
+        let frameUpdateInterval;
+        
+        // Initialize gauge chart
+        let gaugeOptions = {
+            hasNeedle: true,
+            needleColor: 'rgb(100, 100, 100)',
+            needleUpdateSpeed: 1000,
+            arcColors: ['rgb(44, 151, 222)', 'rgb(44, 151, 222)', 'rgb(46, 204, 113)', 'rgb(46, 204, 113)', 'rgb(231, 76, 60)'],
+            arcDelimiters: [10, 40, 60, 80],
+            rangeLabel: ['0', '180'],
+            centralLabel: '',
+        };
+        
+        let gauge = GaugeChart.gaugeChart(bpmGauge, 150, gaugeOptions);
+        gauge.updateNeedle(0);
+        
+        // Start monitoring
+        startBtn.addEventListener('click', function() {
+            if (isMonitoring) return;
+            
+            // Call API to start monitoring
+            fetch('/api/start-bpm-monitor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI
+                    isMonitoring = true;
+                    videoPlaceholder.classList.add('d-none');
+                    videoFeed.classList.remove('d-none');
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    
+                    // Update BPM status
+                    bpmStatus.textContent = 'Initializing...';
+                    bpmStatus.className = 'badge bg-info mb-3';
+                    
+                    // Start updating the video feed
+                    updateVideoFeed();
+                    
+                    // Start updating BPM values
+                    updateBPM();
+                    updateInterval = setInterval(updateBPM, 1000);
+                } else {
+                    alert('Failed to start heart rate monitoring. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while starting the monitor. Please try again.');
+            });
+        });
+        
+        // Stop monitoring
+        stopBtn.addEventListener('click', function() {
+            if (!isMonitoring) return;
+            
+            // Call API to stop monitoring
+            fetch('/api/stop-bpm-monitor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                stopMonitoring();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while stopping the monitor.');
+                stopMonitoring();
+            });
+        });
+        
+        function stopMonitoring() {
+            // Update UI
+            isMonitoring = false;
+            videoFeed.classList.add('d-none');
+            videoPlaceholder.classList.remove('d-none');
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            // Update BPM status
+            bpmStatus.textContent = 'Inactive';
+            bpmStatus.className = 'badge bg-secondary mb-3';
+            
+            // Stop updating
+            clearInterval(updateInterval);
+            clearInterval(frameUpdateInterval);
+            
+            // Reset BPM value
+            bpmValue.textContent = '--';
+            gauge.updateNeedle(0);
+        }
+        
+        function updateVideoFeed() {
+            // Function to update the video feed image
+            function updateFrame() {
+                if (!isMonitoring) return;
+                
+                fetch('/api/get-frame')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.frame) {
+                            videoFeed.src = 'data:image/jpeg;base64,' + data.frame;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error getting frame:', error);
+                    });
+            }
+            
+            // Update immediately and then every 100ms
+            updateFrame();
+            frameUpdateInterval = setInterval(updateFrame, 100);
+        }
+        
+        function updateBPM() {
+            if (!isMonitoring) return;
+            
+            fetch('/api/get-bpm')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ready) {
+                        const bpm = data.bpm;
+                        
+                        // Update BPM value
+                        bpmValue.textContent = bpm;
+                        
+                        // Update gauge
+                        gauge.updateNeedle(bpm / 180 * 100);
+                        
+                        // Update status based on BPM
+                        if (bpm < 60) {
+                            bpmStatus.textContent = 'Low';
+                            bpmStatus.className = 'badge bg-warning mb-3';
+                        } else if (bpm <= 100) {
+                            bpmStatus.textContent = 'Normal';
+                            bpmStatus.className = 'badge bg-success mb-3';
+                        } else {
+                            bpmStatus.textContent = 'High';
+                            bpmStatus.className = 'badge bg-danger mb-3';
+                        }
+                    } else {
+                        bpmStatus.textContent = 'Calculating...';
+                        bpmStatus.className = 'badge bg-info mb-3';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error getting BPM:', error);
+                    bpmStatus.textContent = 'Error';
+                    bpmStatus.className = 'badge bg-secondary mb-3';
+                });
+        }
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    #bpm-display {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 1rem 0;
+    }
+    
+    #bpm-display small {
+        font-size: 1rem;
+        font-weight: normal;
+    }
+    
+    .video-container {
+        max-height: 480px;
+        overflow: hidden;
+    }
+    
+    #video-feed {
+        max-height: 480px;
+        width: 100%;
+        object-fit: contain;
+    }
+    
+    #bpm-gauge {
+        width: 100%;
+        height: 150px;
+    }
+</style>
+{% endblock %} 

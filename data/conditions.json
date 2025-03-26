@@ -1,0 +1,18 @@
+{
+  "common_cold": {
+    "id": "C1",
+    "name": "Common Cold",
+    "description": "A viral infectious disease of the upper respiratory tract",
+    "severity": 1,
+    "triage_level": "Self-care",
+    "medical_specialty": "General Practice"
+  },
+  "influenza": {
+    "id": "C2",
+    "name": "Influenza",
+    "description": "A viral infection that attacks respiratory system",
+    "severity": 2,
+    "triage_level": "Non-urgent medical care",
+    "medical_specialty": "General Practice"
+  }
+}

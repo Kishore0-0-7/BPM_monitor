@@ -1,0 +1,27 @@
+{
+  "headache": {
+    "id": "S1",
+    "name": "Headache",
+    "description": "Pain in the head or upper neck"
+  },
+  "fever": {
+    "id": "S2",
+    "name": "Fever",
+    "description": "Elevated body temperature above normal range"
+  },
+  "cough": {
+    "id": "S3",
+    "name": "Cough",
+    "description": "Sudden expulsion of air from the lungs"
+  },
+  "fatigue": {
+    "id": "S4",
+    "name": "Fatigue",
+    "description": "Extreme tiredness or exhaustion"
+  },
+  "nausea": {
+    "id": "S5",
+    "name": "Nausea",
+    "description": "Sensation of unease in the stomach with an urge to vomit"
+  }
+}

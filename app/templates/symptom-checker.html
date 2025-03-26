@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}AI Symptom Checker - HealthAssist AI{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0"><i class="fas fa-stethoscope me-2"></i>AI Symptom Checker</h2>
+            </div>
+            <div class="card-body">
+                <div id="symptom-checker-container">
+                    <!-- Step 1: Input symptoms -->
+                    <div id="step-1" class="step active">
+                        <h3 class="mb-4">Please describe your symptoms</h3>
+                        <p class="text-muted mb-4">Enter as many symptoms as you're experiencing for a more accurate assessment.</p>
+                        
+                        <div class="input-group mb-3">
+                            <input type="text" id="symptom-input" class="form-control" placeholder="Enter a symptom (e.g., headache, fever, cough)">
+                            <button class="btn btn-outline-primary" type="button" id="add-symptom-btn">Add</button>
+                        </div>
+                        
+                        <div id="symptoms-list" class="mb-4">
+                            <div class="alert alert-info">No symptoms added yet. Please add at least one symptom.</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <div class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i> Add as many symptoms as you can for better results.
+                            </div>
+                            <button id="analyze-btn" class="btn btn-primary" disabled>
+                                <i class="fas fa-microscope me-1"></i> Analyze Symptoms
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Loading -->
+                    <div id="step-2" class="step">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <h3>Analyzing your symptoms...</h3>
+                            <p class="text-muted">Our AI is evaluating your symptoms to provide a preliminary assessment.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Results -->
+                    <div id="step-3" class="step">
+                        <h3 class="mb-4">Analysis Results</h3>
+                        
+                        <div id="identified-symptoms" class="mb-4">
+                            <h5>Identified Symptoms</h5>
+                            <div id="identified-symptoms-list" class="mb-3"></div>
+                        </div>
+                        
+                        <div id="possible-conditions" class="mb-4">
+                            <h5>Possible Conditions</h5>
+                            <div id="conditions-list"></div>
+                        </div>
+                        
+                        <div id="recommendations" class="mb-4">
+                            <h5>Recommendations</h5>
+                            <div id="recommendations-list" class="card bg-light">
+                                <div class="card-body"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <h5>Important Disclaimer</h5>
+                            <p class="mb-0">This information is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.</p>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <button id="start-over-btn" class="btn btn-outline-secondary">
+                                <i class="fas fa-redo me-1"></i> Start Over
+                            </button>
+                            <a href="{{ url_for('main.bpm_monitor_page') }}" class="btn btn-primary">
+                                <i class="fas fa-heartbeat me-1"></i> Check Heart Rate
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM elements
+        const symptomInput = document.getElementById('symptom-input');
+        const addSymptomBtn = document.getElementById('add-symptom-btn');
+        const symptomsList = document.getElementById('symptoms-list');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const startOverBtn = document.getElementById('start-over-btn');
+        
+        // Steps
+        const step1 = document.getElementById('step-1');
+        const step2 = document.getElementById('step-2');
+        const step3 = document.getElementById('step-3');
+        
+        // Result containers
+        const identifiedSymptomsList = document.getElementById('identified-symptoms-list');
+        const conditionsList = document.getElementById('conditions-list');
+        const recommendationsList = document.querySelector('#recommendations-list .card-body');
+        
+        // State
+        let symptoms = [];
+        
+        // Add symptom on button click
+        addSymptomBtn.addEventListener('click', addSymptom);
+        
+        // Add symptom on Enter key
+        symptomInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addSymptom();
+            }
+        });
+        
+        // Analyze symptoms
+        analyzeBtn.addEventListener('click', analyzeSymptoms);
+        
+        // Start over
+        startOverBtn.addEventListener('click', resetForm);
+        
+        function addSymptom() {
+            const symptomText = symptomInput.value.trim();
+            
+            if (symptomText && !symptoms.includes(symptomText)) {
+                symptoms.push(symptomText);
+                updateSymptomsList();
+                symptomInput.value = '';
+                
+                // Enable analyze button if at least one symptom
+                analyzeBtn.disabled = false;
+            }
+            
+            symptomInput.focus();
+        }
+        
+        function updateSymptomsList() {
+            if (symptoms.length === 0) {
+                symptomsList.innerHTML = '<div class="alert alert-info">No symptoms added yet. Please add at least one symptom.</div>';
+                return;
+            }
+            
+            let html = '<div class="d-flex flex-wrap gap-2">';
+            
+            symptoms.forEach((symptom, index) => {
+                html += `
+                    <div class="badge bg-primary d-flex align-items-center p-2">
+                        ${symptom}
+                        <button type="button" class="btn-close btn-close-white ms-2" 
+                                aria-label="Remove symptom" data-index="${index}"></button>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            symptomsList.innerHTML = html;
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.btn-close').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    symptoms.splice(index, 1);
+                    updateSymptomsList();
+                    
+                    // Disable analyze button if no symptoms
+                    analyzeBtn.disabled = symptoms.length === 0;
+                });
+            });
+        }
+        
+        function analyzeSymptoms() {
+            // Show loading step
+            step1.classList.remove('active');
+            step2.classList.add('active');
+            
+            // Call API to analyze symptoms
+            fetch('/api/analyze-symptoms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    symptoms: symptoms
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Process results
+                displayResults(data);
+                
+                // Show results step
+                step2.classList.remove('active');
+                step3.classList.add('active');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while analyzing symptoms. Please try again.');
+                
+                // Go back to step 1
+                step2.classList.remove('active');
+                step1.classList.add('active');
+            });
+        }
+        
+        function displayResults(data) {
+            // Display identified symptoms
+            if (data.identified_symptoms && data.identified_symptoms.length > 0) {
+                let html = '<div class="d-flex flex-wrap gap-2">';
+                data.identified_symptoms.forEach(symptom => {
+                    html += `<div class="badge bg-success p-2">${symptom.name}</div>`;
+                });
+                html += '</div>';
+                identifiedSymptomsList.innerHTML = html;
+            } else {
+                identifiedSymptomsList.innerHTML = '<div class="alert alert-warning">No specific medical symptoms were identified.</div>';
+            }
+            
+            // Display unidentified symptoms if any
+            if (data.unidentified_symptoms && data.unidentified_symptoms.length > 0) {
+                let html = '<div class="mt-3">';
+                html += '<p class="text-muted mb-2">We couldn\'t identify these symptoms:</p>';
+                html += '<div class="d-flex flex-wrap gap-2">';
+                data.unidentified_symptoms.forEach(symptom => {
+                    html += `<div class="badge bg-secondary p-2">${symptom}</div>`;
+                });
+                html += '</div></div>';
+                identifiedSymptomsList.innerHTML += html;
+            }
+            
+            // Display possible conditions
+            if (data.possible_conditions && data.possible_conditions.length > 0) {
+                let html = '';
+                data.possible_conditions.forEach(condition => {
+                    let severityClass = '';
+                    let severityText = '';
+                    
+                    switch(condition.severity) {
+                        case 1: 
+                            severityClass = 'success';
+                            severityText = 'Mild';
+                            break;
+                        case 2: 
+                            severityClass = 'warning';
+                            severityText = 'Moderate';
+                            break;
+                        case 3: 
+                            severityClass = 'danger';
+                            severityText = 'Severe';
+                            break;
+                        case 4: 
+                            severityClass = 'dark';
+                            severityText = 'Critical';
+                            break;
+                        default: 
+                            severityClass = 'secondary';
+                            severityText = 'Unknown';
+                    }
+                    
+                    html += `
+                        <div class="card mb-3 border-${severityClass}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h5 class="card-title">${condition.name}</h5>
+                                    <span class="badge bg-${severityClass}">${severityText}</span>
+                                </div>
+                                <p class="card-text">${condition.description}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Probability: ${condition.probability}%</small>
+                                    <small class="text-muted">Medical Specialty: ${condition.medical_specialty}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                conditionsList.innerHTML = html;
+            } else {
+                conditionsList.innerHTML = '<div class="alert alert-info">No specific conditions were identified based on your symptoms.</div>';
+            }
+            
+            // Display recommendations
+            if (data.recommendations && data.recommendations.length > 0) {
+                let html = '<ul class="mb-0">';
+                data.recommendations.forEach(recommendation => {
+                    html += `<li>${recommendation}</li>`;
+                });
+                html += '</ul>';
+                recommendationsList.innerHTML = html;
+            } else {
+                recommendationsList.innerHTML = '<p class="mb-0">No specific recommendations available.</p>';
+            }
+        }
+        
+        function resetForm() {
+            // Clear symptoms
+            symptoms = [];
+            updateSymptomsList();
+            
+            // Reset input
+            symptomInput.value = '';
+            
+            // Disable analyze button
+            analyzeBtn.disabled = true;
+            
+            // Go back to step 1
+            step3.classList.remove('active');
+            step1.classList.add('active');
+        }
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .step {
+        display: none;
+    }
+    .step.active {
+        display: block;
+    }
+    .main-container {
+        min-height: 80vh;
+    }
+</style>
+{% endblock %} 

@@ -1,0 +1,139 @@
+{
+  "possible_conditions": [
+    {
+      "condition_id": "common_cold",
+      "name": "Common Cold",
+      "description": "A viral infectious disease of the upper respiratory tract",
+      "probability": 533,
+      "matching_symptoms": 16,
+      "total_symptoms": 3,
+      "severity": 1,
+      "triage_level": "Self-care",
+      "medical_specialty": "General Practice"
+    },
+    {
+      "condition_id": "influenza",
+      "name": "Influenza",
+      "description": "A viral infection that attacks respiratory system",
+      "probability": 475,
+      "matching_symptoms": 19,
+      "total_symptoms": 4,
+      "severity": 2,
+      "triage_level": "Non-urgent medical care",
+      "medical_specialty": "General Practice"
+    }
+  ],
+  "recommendations": [
+    "Self-care is appropriate for these symptoms",
+    "Rest and monitor your symptoms",
+    "Stay hydrated and get adequate rest",
+    "Over-the-counter remedies may help with symptoms",
+    "If symptoms persist for more than a week, consult a healthcare provider"
+  ],
+  "identified_symptoms": [
+    {
+      "id": "fatigue",
+      "name": "Fatigue",
+      "description": "Extreme tiredness or exhaustion"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "fever",
+      "name": "Fever",
+      "description": "Elevated body temperature above normal range"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "fever",
+      "name": "Fever",
+      "description": "Elevated body temperature above normal range"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "fever",
+      "name": "Fever",
+      "description": "Elevated body temperature above normal range"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    },
+    {
+      "id": "cough",
+      "name": "Cough",
+      "description": "Sudden expulsion of air from the lungs"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    }
+  ],
+  "unidentified_symptoms": [
+    "m",
+    "l",
+    ",",
+    ",",
+    "l"
+  ],
+  "disclaimer": "This is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.",
+  "analysis_id": "5f53ac97-6970-4138-9238-e31173de18a0"
+}

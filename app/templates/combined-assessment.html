@@ -1,0 +1,577 @@
+{% extends "base.html" %}
+
+{% block title %}Complete Health Assessment - HealthAssist AI{% endblock %}
+
+<!-- Add Chart.js library in the head section -->
+{% block extra_css %}
+<style>
+.chart-options {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+.chart-options .form-select, .chart-options .form-control {
+    font-size: 0.85rem;
+}
+.chart-container {
+    position: relative;
+    margin-top: 1rem;
+    height: 220px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1 class="text-center mb-4">Complete Health Assessment</h1>
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            This comprehensive assessment combines both symptom analysis and heart rate monitoring for a more complete health evaluation.
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Symptom Checker Section -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i>Symptom Checker
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="symptomForm">
+                    <div class="mb-3">
+                        <label for="symptoms" class="form-label">Describe your symptoms:</label>
+                        <textarea class="form-control" id="symptoms" rows="4" placeholder="Enter symptoms separated by commas (e.g., headache, fever, cough)"></textarea>
+                        <div class="form-text">
+                            List each symptom separated by commas for better analysis results.
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Analyze Symptoms
+                    </button>
+                </form>
+                <div id="symptomResults" class="mt-3" style="display: none;">
+                    <h6>Analysis Results:</h6>
+                    <div id="symptomAnalysis" class="alert alert-info"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BPM Monitor Section -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-heartbeat me-2"></i>Heart Rate Monitor
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="text-center mb-3">
+                            <div id="bpmDisplay" class="display-1 text-danger">--</div>
+                            <div class="h5">BPM</div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button id="startBPM" class="btn btn-success">
+                                <i class="fas fa-play me-2"></i>Start Monitoring
+                            </button>
+                            <button id="stopBPM" class="btn btn-danger" disabled>
+                                <i class="fas fa-stop me-2"></i>Stop Monitoring
+                            </button>
+                        </div>
+                        <div id="bpmStatus" class="mt-3"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <!-- Webcam display area -->
+                        <div id="webcamContainer" class="text-center">
+                            <img id="webcamFeed" class="img-fluid rounded" src="" style="display: none; max-height: 240px;">
+                            <div id="webcamPlaceholder" class="border rounded d-flex align-items-center justify-content-center" style="height: 240px; background-color: #f8f9fa;">
+                                <p class="text-muted">Camera feed will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- BPM Graph Section -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="chart-container">
+                            <canvas id="bpmChart"></canvas>
+                        </div>
+                        
+                        <!-- Chart customization options -->
+                        <div class="chart-options">
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label for="chartTimeRange" class="form-label small">Time Range</label>
+                                    <select id="chartTimeRange" class="form-select form-select-sm">
+                                        <option value="30">30 seconds</option>
+                                        <option value="60" selected>1 minute</option>
+                                        <option value="120">2 minutes</option>
+                                        <option value="300">5 minutes</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="chartLineColor" class="form-label small">Line Color</label>
+                                    <input type="color" class="form-control form-control-sm" id="chartLineColor" value="#dc3545">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="chartLineThickness" class="form-label small">Line Thickness</label>
+                                    <select id="chartLineThickness" class="form-select form-select-sm">
+                                        <option value="1">Thin</option>
+                                        <option value="2" selected>Normal</option>
+                                        <option value="3">Thick</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Combined Analysis Results -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Combined Health Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="combinedAnalysis" class="alert alert-info">
+                    Complete both the symptom checker and heart rate monitoring to get a comprehensive health analysis.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Symptom Checker Form Handler
+    const symptomForm = document.getElementById('symptomForm');
+    const symptomResults = document.getElementById('symptomResults');
+    const symptomAnalysis = document.getElementById('symptomAnalysis');
+    
+    // BPM Monitor Elements
+    const startBPM = document.getElementById('startBPM');
+    const stopBPM = document.getElementById('stopBPM');
+    const bpmDisplay = document.getElementById('bpmDisplay');
+    const bpmStatus = document.getElementById('bpmStatus');
+    const webcamFeed = document.getElementById('webcamFeed');
+    const webcamPlaceholder = document.getElementById('webcamPlaceholder');
+    
+    // Chart elements and options
+    const chartTimeRange = document.getElementById('chartTimeRange');
+    const chartLineColor = document.getElementById('chartLineColor');
+    const chartLineThickness = document.getElementById('chartLineThickness');
+    
+    // BPM monitoring state
+    let bpmMonitoring = false;
+    let bpmUpdateInterval = null;
+    let frameUpdateInterval = null;
+    let bpmHistory = [];
+    let maxDataPoints = 60; // Default to 1 minute at 1 reading per second
+    
+    // Initialize BPM Chart
+    const ctx = document.getElementById('bpmChart').getContext('2d');
+    const bpmChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array(maxDataPoints).fill(''),
+            datasets: [{
+                label: 'Heart Rate (BPM)',
+                data: Array(maxDataPoints).fill(null),
+                borderColor: chartLineColor.value,
+                borderWidth: parseInt(chartLineThickness.value),
+                tension: 0.3,
+                fill: false,
+                pointRadius: 1,
+                pointHoverRadius: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 300
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 40,
+                    max: 180,
+                    title: {
+                        display: true,
+                        text: 'BPM'
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Time (seconds)'
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            return `${context[0].dataIndex} seconds ago`;
+                        }
+                    }
+                },
+                annotation: {
+                    annotations: {
+                        normalRangeLower: {
+                            type: 'line',
+                            yMin: 60,
+                            yMax: 60,
+                            borderColor: 'rgba(75, 192, 192, 0.5)',
+                            borderWidth: 1,
+                            borderDash: [5, 5]
+                        },
+                        normalRangeUpper: {
+                            type: 'line',
+                            yMin: 100,
+                            yMax: 100,
+                            borderColor: 'rgba(75, 192, 192, 0.5)',
+                            borderWidth: 1,
+                            borderDash: [5, 5]
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Handle chart customization changes
+    chartTimeRange.addEventListener('change', function() {
+        maxDataPoints = parseInt(this.value);
+        updateChartConfig();
+    });
+    
+    chartLineColor.addEventListener('change', function() {
+        bpmChart.data.datasets[0].borderColor = this.value;
+        bpmChart.update();
+    });
+    
+    chartLineThickness.addEventListener('change', function() {
+        bpmChart.data.datasets[0].borderWidth = parseInt(this.value);
+        bpmChart.update();
+    });
+    
+    // Function to update chart configuration
+    function updateChartConfig() {
+        // Reset the data arrays with the new length
+        bpmChart.data.labels = Array(maxDataPoints).fill('');
+        bpmChart.data.datasets[0].data = Array(maxDataPoints).fill(null);
+        
+        // Trim history to the new max length
+        if (bpmHistory.length > maxDataPoints) {
+            bpmHistory = bpmHistory.slice(bpmHistory.length - maxDataPoints);
+        }
+        
+        // Update chart with current history
+        bpmHistory.forEach((bpm, index) => {
+            const position = maxDataPoints - bpmHistory.length + index;
+            if (position >= 0) {
+                bpmChart.data.datasets[0].data[position] = bpm;
+            }
+        });
+        
+        bpmChart.update();
+    }
+    
+    // Function to update chart with new BPM value
+    function updateChart(bpm) {
+        if (!bpm || isNaN(bpm)) return;
+        
+        // Add new BPM to history
+        bpmHistory.push(bpm);
+        
+        // Keep history at max length
+        if (bpmHistory.length > maxDataPoints) {
+            bpmHistory.shift();
+        }
+        
+        // Shift the data in the chart
+        bpmChart.data.datasets[0].data.shift();
+        bpmChart.data.datasets[0].data.push(bpm);
+        
+        bpmChart.update();
+    }
+
+    // Symptom Form Submit Handler
+    symptomForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const symptomsText = document.getElementById('symptoms').value;
+        
+        // Convert symptom text to array by splitting by commas or spaces
+        const symptomsArray = symptomsText
+            .split(/[,;]+/)
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+        
+        if (symptomsArray.length === 0) {
+            symptomAnalysis.textContent = 'Please enter at least one symptom';
+            symptomResults.style.display = 'block';
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/analyze-symptoms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ symptoms: symptomsArray })
+            });
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                symptomAnalysis.textContent = `Error: ${data.error}`;
+            } else if (data.possible_conditions && data.possible_conditions.length > 0) {
+                // Format the analysis results with HTML
+                const conditions = data.possible_conditions;
+                let analysisHtml = '<div class="condition-list">';
+                
+                conditions.forEach((condition, index) => {
+                    let conditionName = condition.name || condition.condition;
+                    let probability = condition.probability;
+                    if (typeof probability === 'number' && probability <= 1) {
+                        probability = Math.round(probability * 100);
+                    }
+                    
+                    analysisHtml += `<div class="condition-item mb-2">
+                        <strong>${index + 1}. ${conditionName}</strong>: ${probability}% probability
+                    </div>`;
+                });
+                
+                analysisHtml += '</div>';
+                
+                if (data.recommendations && data.recommendations.length > 0) {
+                    analysisHtml += '<div class="recommendations mt-3"><strong>Recommendations:</strong><ul>';
+                    data.recommendations.forEach((rec) => {
+                        analysisHtml += `<li>${rec}</li>`;
+                    });
+                    analysisHtml += '</ul></div>';
+                }
+                
+                if (data.disclaimer) {
+                    analysisHtml += `<div class="disclaimer mt-2 small text-muted">${data.disclaimer}</div>`;
+                }
+                
+                symptomAnalysis.innerHTML = analysisHtml;
+            } else {
+                symptomAnalysis.textContent = 'No conditions identified from the symptoms provided.';
+            }
+            
+            symptomResults.style.display = 'block';
+            updateCombinedAnalysis();
+        } catch (error) {
+            console.error('Error:', error);
+            symptomAnalysis.textContent = 'Error analyzing symptoms. Please try again.';
+            symptomResults.style.display = 'block';
+        }
+    });
+
+    // BPM Monitor Start Handler
+    startBPM.addEventListener('click', async function() {
+        try {
+            // Reset BPM history and chart
+            bpmHistory = [];
+            bpmChart.data.datasets[0].data = Array(maxDataPoints).fill(null);
+            bpmChart.update();
+            
+            const response = await fetch('/api/start-bpm-monitor', {
+                method: 'POST'
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                bpmMonitoring = true;
+                startBPM.disabled = true;
+                stopBPM.disabled = false;
+                bpmStatus.innerHTML = '<div class="alert alert-info">Monitoring heart rate...</div>';
+                
+                // Show webcam feed and hide placeholder
+                webcamFeed.style.display = 'block';
+                webcamPlaceholder.style.display = 'none';
+                
+                // Start polling for BPM updates
+                bpmUpdateInterval = setInterval(updateBPM, 1000);
+                
+                // Start polling for webcam frame updates
+                frameUpdateInterval = setInterval(updateWebcamFrame, 100);
+            } else {
+                bpmStatus.innerHTML = '<div class="alert alert-danger">Failed to start monitoring</div>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            bpmStatus.innerHTML = '<div class="alert alert-danger">Failed to start monitoring</div>';
+        }
+    });
+
+    // BPM Monitor Stop Handler
+    stopBPM.addEventListener('click', async function() {
+        try {
+            const response = await fetch('/api/stop-bpm-monitor', {
+                method: 'POST'
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                bpmMonitoring = false;
+                startBPM.disabled = false;
+                stopBPM.disabled = true;
+                bpmStatus.innerHTML = '<div class="alert alert-success">Monitoring stopped</div>';
+                
+                // Hide webcam feed and show placeholder
+                webcamFeed.style.display = 'none';
+                webcamPlaceholder.style.display = 'flex';
+                
+                // Stop polling for updates
+                clearInterval(bpmUpdateInterval);
+                clearInterval(frameUpdateInterval);
+                
+                updateCombinedAnalysis();
+            } else {
+                bpmStatus.innerHTML = '<div class="alert alert-danger">Failed to stop monitoring</div>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            bpmStatus.innerHTML = '<div class="alert alert-danger">Failed to stop monitoring</div>';
+        }
+    });
+
+    // Function to update BPM display
+    async function updateBPM() {
+        try {
+            const response = await fetch('/api/get-bpm');
+            const data = await response.json();
+            
+            if (data.ready) {
+                const bpm = data.bpm;
+                bpmDisplay.textContent = bpm;
+                updateBPMStatus(bpm);
+                updateChart(bpm);
+            } else {
+                bpmDisplay.textContent = '--';
+                bpmStatus.innerHTML = '<div class="alert alert-info">Calculating BPM...</div>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+    
+    // Function to update webcam frame
+    async function updateWebcamFrame() {
+        try {
+            const response = await fetch('/api/get-frame');
+            const data = await response.json();
+            
+            if (data.frame) {
+                webcamFeed.src = `data:image/jpeg;base64,${data.frame}`;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // Function to update BPM status
+    function updateBPMStatus(bpm) {
+        let status = '';
+        if (bpm < 60) {
+            status = '<div class="alert alert-warning">Heart rate is below normal range</div>';
+        } else if (bpm > 100) {
+            status = '<div class="alert alert-warning">Heart rate is above normal range</div>';
+        } else {
+            status = '<div class="alert alert-success">Heart rate is within normal range</div>';
+        }
+        bpmStatus.innerHTML = status;
+    }
+
+    // Function to update combined analysis
+    function updateCombinedAnalysis() {
+        const combinedAnalysis = document.getElementById('combinedAnalysis');
+        const hasSymptoms = symptomResults.style.display === 'block';
+        const hasBPM = !startBPM.disabled;
+
+        if (hasSymptoms && hasBPM) {
+            // Get the current BPM assessment
+            let bpmAssessment = bpmStatus.innerHTML || '';
+            
+            // Get symptom assessment - use innerHTML since we're now using HTML formatting
+            let symptomAssessmentHtml = symptomAnalysis.innerHTML || '';
+            
+            combinedAnalysis.innerHTML = `
+                <h6>Complete Health Assessment:</h6>
+                <p>Based on your symptoms and heart rate measurements, here's a comprehensive analysis of your health status.</p>
+                <div class="mt-3">
+                    <h6>Symptom Analysis:</h6>
+                    <div>${symptomAssessmentHtml}</div>
+                </div>
+                <div class="mt-3">
+                    <h6>Heart Rate Analysis:</h6>
+                    ${bpmAssessment}
+                </div>
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Remember: This is an AI-powered assessment and should not replace professional medical advice.
+                </div>
+            `;
+        } else if (hasSymptoms) {
+            // Use innerHTML since we're now using HTML formatting
+            let symptomAssessmentHtml = symptomAnalysis.innerHTML || '';
+            
+            combinedAnalysis.innerHTML = `
+                <p>Please complete the heart rate monitoring for a full health assessment.</p>
+                <div class="mt-3">
+                    <h6>Symptom Analysis:</h6>
+                    <div>${symptomAssessmentHtml}</div>
+                </div>
+            `;
+        } else if (hasBPM) {
+            combinedAnalysis.innerHTML = `
+                <p>Please complete the symptom checker for a full health assessment.</p>
+                <div class="mt-3">
+                    <h6>Heart Rate Analysis:</h6>
+                    ${bpmStatus.innerHTML}
+                </div>
+            `;
+        } else {
+            combinedAnalysis.innerHTML = 'Complete both the symptom checker and heart rate monitoring to get a comprehensive health analysis.';
+        }
+    }
+});
+</script>
+{% endblock %} 

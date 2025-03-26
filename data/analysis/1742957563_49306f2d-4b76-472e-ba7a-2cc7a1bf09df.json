@@ -1,0 +1,49 @@
+{
+  "possible_conditions": [
+    {
+      "condition_id": "influenza",
+      "name": "Influenza",
+      "description": "A viral infection that attacks respiratory system",
+      "probability": 50,
+      "matching_symptoms": 2,
+      "total_symptoms": 4,
+      "severity": 2,
+      "triage_level": "Non-urgent medical care",
+      "medical_specialty": "General Practice"
+    },
+    {
+      "condition_id": "common_cold",
+      "name": "Common Cold",
+      "description": "A viral infectious disease of the upper respiratory tract",
+      "probability": 33,
+      "matching_symptoms": 1,
+      "total_symptoms": 3,
+      "severity": 1,
+      "triage_level": "Self-care",
+      "medical_specialty": "General Practice"
+    }
+  ],
+  "recommendations": [
+    "Schedule an appointment with your healthcare provider soon",
+    "Rest and monitor your symptoms",
+    "Stay hydrated and get adequate rest",
+    "Over-the-counter medications may help with symptoms (consult with pharmacist)"
+  ],
+  "identified_symptoms": [
+    {
+      "id": "fever",
+      "name": "Fever",
+      "description": "Elevated body temperature above normal range"
+    },
+    {
+      "id": "headache",
+      "name": "Headache",
+      "description": "Pain in the head or upper neck"
+    }
+  ],
+  "unidentified_symptoms": [
+    "cold"
+  ],
+  "disclaimer": "This is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.",
+  "analysis_id": "49306f2d-4b76-472e-ba7a-2cc7a1bf09df"
+}

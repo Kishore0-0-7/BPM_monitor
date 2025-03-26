@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}HealthAssist AI - AI-Powered Health Assessment{% endblock %}
+
+{% block content %}
+<div class="jumbotron text-center p-5 rounded bg-light mb-4">
+    <h1 class="display-4">Welcome to HealthAssist AI</h1>
+    <p class="lead">A comprehensive health assessment platform powered by artificial intelligence</p>
+    <hr class="my-4">
+    <p>Get a preliminary health assessment by analyzing your symptoms and monitoring your heart rate.</p>
+    <div class="mt-4">
+        <a href="{{ url_for('main.combined_assessment') }}" class="btn btn-primary btn-lg me-2">
+            <i class="fas fa-stethoscope me-2"></i>Start Assessment
+        </a>
+        <a href="#features" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-info-circle me-2"></i>Learn More
+        </a>
+    </div>
+</div>
+
+<div id="features" class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon bg-primary text-white rounded-circle mb-3">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h5 class="card-title">AI Symptom Analysis</h5>
+                <p class="card-text">Our advanced AI analyzes your symptoms to identify potential health conditions with remarkable accuracy.</p>
+                <a href="{{ url_for('main.symptom_checker') }}" class="btn btn-sm btn-outline-primary">Try Symptom Checker</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon bg-danger text-white rounded-circle mb-3">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <h5 class="card-title">Heart Rate Monitoring</h5>
+                <p class="card-text">Monitor your heart rate in real-time using just your webcam with our advanced pulse detection algorithm.</p>
+                <a href="{{ url_for('main.bpm_monitor_page') }}" class="btn btn-sm btn-outline-danger">Try BPM Monitor</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="feature-icon bg-success text-white rounded-circle mb-3">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h5 class="card-title">Comprehensive Assessment</h5>
+                <p class="card-text">Combine symptom analysis with heart rate data for a more complete picture of your health status.</p>
+                <a href="{{ url_for('main.combined_assessment') }}" class="btn btn-sm btn-outline-success">Get Full Assessment</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-lg-6 mb-4">
+        <h2>How It Works</h2>
+        <div class="accordion" id="howItWorksAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Step 1: Symptom Input
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#howItWorksAccordion">
+                    <div class="accordion-body">
+                        <p>Input your symptoms through our user-friendly interface. The system recognizes medical terminology and common descriptions.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Step 2: Heart Rate Monitoring
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#howItWorksAccordion">
+                    <div class="accordion-body">
+                        <p>Using our advanced computer vision technology, we can measure your heart rate through subtle color changes in your face captured by your webcam.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Step 3: AI Analysis
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#howItWorksAccordion">
+                    <div class="accordion-body">
+                        <p>Our AI algorithms analyze your symptoms and vital signs to identify potential health issues and provide recommendations.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        Step 4: Results & Recommendations
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#howItWorksAccordion">
+                    <div class="accordion-body">
+                        <p>Receive a detailed report of possible conditions, severity assessments, and recommended next steps for your health concerns.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <h2>Important Notice</h2>
+        <div class="card border-warning mb-4">
+            <div class="card-body">
+                <h5 class="card-title text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Medical Disclaimer</h5>
+                <p class="card-text">HealthAssist AI is designed to provide preliminary health information and is not a substitute for professional medical advice, diagnosis, or treatment.</p>
+                <p class="card-text">Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.</p>
+            </div>
+        </div>
+        
+        <div class="card border-info">
+            <div class="card-body">
+                <h5 class="card-title text-info"><i class="fas fa-shield-alt me-2"></i>Privacy & Security</h5>
+                <p class="card-text">Your health data is important. All analysis is performed locally in your browser and your personal health information is never stored on our servers without your explicit consent.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .feature-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .jumbotron {
+        background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+</style>
+{% endblock %} 

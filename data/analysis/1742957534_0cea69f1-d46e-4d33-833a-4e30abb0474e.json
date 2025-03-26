@@ -1,0 +1,24 @@
+{
+  "possible_conditions": [
+    {
+      "condition_id": "unknown",
+      "name": "Unspecified Condition",
+      "description": "Your symptoms do not clearly match any specific condition in our database.",
+      "probability": 0,
+      "matching_symptoms": 0,
+      "total_symptoms": 0,
+      "severity": 1,
+      "triage_level": "Medical consultation",
+      "medical_specialty": "General Practice"
+    }
+  ],
+  "recommendations": [
+    "Please consult a healthcare professional for proper diagnosis."
+  ],
+  "identified_symptoms": [],
+  "unidentified_symptoms": [
+    "cold"
+  ],
+  "disclaimer": "This is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.",
+  "analysis_id": "0cea69f1-d46e-4d33-833a-4e30abb0474e"
+}
