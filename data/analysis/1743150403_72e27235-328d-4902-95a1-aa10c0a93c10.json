@@ -1,0 +1,35 @@
+{
+  "possible_conditions": [
+    {
+      "name": "Seasonal Allergies",
+      "description": "Immune system reaction to environmental triggers",
+      "probability": 0.17,
+      "severity": 1,
+      "matching_symptom_count": 1,
+      "matching_symptoms": [
+        "Nasal Congestion"
+      ]
+    },
+    {
+      "name": "Common Cold",
+      "description": "A viral infectious disease of the upper respiratory tract",
+      "probability": 0.12,
+      "severity": 1,
+      "matching_symptom_count": 1,
+      "matching_symptoms": [
+        "Nasal Congestion"
+      ]
+    }
+  ],
+  "recommendations": [
+    "Rest and stay hydrated",
+    "Over-the-counter medications may help with symptoms",
+    "Monitor your symptoms for any worsening"
+  ],
+  "identified_symptoms": [
+    "Nasal Congestion"
+  ],
+  "unidentified_symptoms": [],
+  "disclaimer": "This analysis is for informational purposes only and does not constitute medical advice. Always consult with a qualified healthcare provider for diagnosis and treatment.",
+  "analysis_id": "72e27235-328d-4902-95a1-aa10c0a93c10"
+}

@@ -149,18 +149,30 @@ class SimpleSymptomAnalyzer:
         }
         
         # Ensure data directory exists
-        if not os.path.exists('data'):
-            os.makedirs('data')
+        data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+        
+        feedback_file = os.path.join(data_dir, 'feedback.json')
         
         # In a real application, you would store this in a database
         # For this example, we'll append to a JSON file
         try:
-            with open('data/feedback.json', 'r') as f:
-                feedbacks = json.load(f)
-        except:
+            if os.path.exists(feedback_file):
+                with open(feedback_file, 'r') as f:
+                    feedbacks = json.load(f)
+            else:
+                feedbacks = []
+        except Exception as e:
+            print(f"Error reading feedback file: {e}")
             feedbacks = []
         
         feedbacks.append(feedback)
             
-        with open('data/feedback.json', 'w') as f:
-            json.dump(feedbacks, f) 
+        try:
+            with open(feedback_file, 'w') as f:
+                json.dump(feedbacks, f, indent=2)
+            return True
+        except Exception as e:
+            print(f"Error writing feedback to file: {e}")
+            return False 

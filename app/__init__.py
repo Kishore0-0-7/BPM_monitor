@@ -38,4 +38,16 @@ def create_app(config_class=Config):
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
     
-    return app 
+    # Initialize BPM monitor
+    try:
+        # Import here to avoid circular imports
+        import sys
+        sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        from app_bpm import create_bpm_monitor
+        app = create_bpm_monitor(app)
+        print("BPM monitor integration successful")
+    except Exception as e:
+        print(f"Error initializing BPM monitor: {e}")
+        print("The application will start without BPM monitoring capabilities")
+        
+    return app

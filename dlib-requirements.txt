@@ -1,0 +1,3 @@
+--extra-index-url https://pypi.python.org/simple
+dlib==19.22.99 --no-cache-dir --verbose --no-deps
+face-recognition-models>=0.3.0

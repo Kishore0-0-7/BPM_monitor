@@ -23,5 +23,20 @@
     "id": "S5",
     "name": "Nausea",
     "description": "Sensation of unease in the stomach with an urge to vomit"
+  },
+  "shortness_of_breath": {
+    "id": "S6",
+    "name": "Shortness of Breath",
+    "description": "Difficulty breathing or dyspnea"
+  },
+  "sore_throat": {
+    "id": "S7",
+    "name": "Sore Throat",
+    "description": "Pain or irritation in the throat"
+  },
+  "dizziness": {
+    "id": "S8",
+    "name": "Dizziness",
+    "description": "Feeling faint, woozy, or unsteady"
   }
 }

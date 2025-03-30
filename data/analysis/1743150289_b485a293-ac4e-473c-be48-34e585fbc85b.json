@@ -1,0 +1,49 @@
+{
+  "possible_conditions": [
+    {
+      "name": "Fever of Unknown Origin",
+      "description": "Elevated body temperature without an immediately obvious cause",
+      "probability": 0.5,
+      "severity": 2,
+      "matching_symptom_count": 2,
+      "matching_symptoms": [
+        "Fever",
+        "Headache"
+      ]
+    },
+    {
+      "name": "Influenza",
+      "description": "A viral infection that attacks respiratory system",
+      "probability": 0.29,
+      "severity": 2,
+      "matching_symptom_count": 2,
+      "matching_symptoms": [
+        "Fever",
+        "Headache"
+      ]
+    },
+    {
+      "name": "COVID-19",
+      "description": "A respiratory disease caused by SARS-CoV-2 virus",
+      "probability": 0.25,
+      "severity": 3,
+      "matching_symptom_count": 2,
+      "matching_symptoms": [
+        "Fever",
+        "Headache"
+      ]
+    }
+  ],
+  "recommendations": [
+    "Rest and stay hydrated",
+    "Consider scheduling a non-urgent appointment with your doctor",
+    "Monitor your symptoms closely for any changes"
+  ],
+  "identified_symptoms": [
+    "Fever",
+    "Headache"
+  ],
+  "unidentified_symptoms": [],
+  "disclaimer": "This analysis is for informational purposes only and does not constitute medical advice. Always consult with a qualified healthcare provider for diagnosis and treatment.",
+  "analysis_id": "b485a293-ac4e-473c-be48-34e585fbc85b"
+}

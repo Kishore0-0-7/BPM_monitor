@@ -1,124 +1,139 @@
-# HealthAssist AI
+# HealthAssist AI - Heart Rate Monitor & Symptom Analyzer
 
-A comprehensive health assessment application that combines symptom analysis and heart rate monitoring using computer vision.
-
-## Overview
-
-HealthAssist AI is a web-based application that offers two main features:
-1. **Symptom Checker**: Analyzes user-reported symptoms to identify possible conditions
-2. **Heart Rate Monitor**: Uses computer vision to detect facial features and calculate heart rate (BPM) in real-time
-3. **Combined Assessment**: Integrates both analyses for a more complete health evaluation
+HealthAssist AI is a comprehensive health monitoring system that combines real-time heart rate detection with symptom analysis. The application uses computer vision techniques to detect heart rate from facial video feed and provides medical symptom analysis.
 
 ## Features
 
-### Symptom Checker
-- Input symptoms via text interface
-- Advanced natural language processing to identify medical conditions
-- Probability-based condition matching
-- Personalized recommendations based on identified conditions
-- Medical disclaimer to ensure proper medical advice is sought
+### Heart Rate Monitoring
+- Non-contact heart rate detection using webcam
+- Eulerian Video Magnification to amplify subtle color changes in skin
+- Real-time pulse waveform visualization
+- BPM (Beats Per Minute) tracking and logging
+- Heart rate zone categorization
 
-### Heart Rate Monitor
-- Real-time BPM calculation using Eulerian Video Magnification
-- Facial detection using OpenCV and dlib
-- Live webcam feed with BPM overlay
-- Customizable BPM visualization graph
-- Historical BPM data tracking
+### Symptom Analysis
+- Symptom matching against medical database
+- Medical condition probability assessment
+- Personalized recommendations based on symptoms
+- Severity classification
 
-### Combined Assessment
-- Integrated health evaluation combining both symptom and heart rate data
-- Comprehensive health status report
-- Visual presentation of critical health information
-- Triage recommendations based on combined analysis
-
-## Technology Stack
-
-- **Backend**: Python, Flask
-- **Computer Vision**: OpenCV, dlib, NumPy, SciPy
-- **Frontend**: JavaScript, HTML5, CSS3, Bootstrap 5
-- **Data Visualization**: Chart.js
-- **Medical Data**: Custom medical knowledge base
+### Reporting
+- Combined health reports with BPM data and symptom analysis
+- Historical session tracking
+- PDF and JSON export options
 
 ## Installation
 
 ### Prerequisites
 - Python 3.8 or higher
-- pip (Python package manager)
-- Webcam access for BPM monitoring
+- Webcam
+- (Optional) NVIDIA GPU for improved performance
 
 ### Setup
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/healthassist-ai.git
-   cd healthassist-ai
-   ```
+```bash
+git clone <repository-url>
+cd BPM
+```
 
-2. Create and activate a virtual environment:
-   ```
-   python -m venv .venv
-   # On Windows
-   .venv\Scripts\activate
-   # On macOS/Linux
-   source .venv/bin/activate
-   ```
+2. Create a virtual environment and activate it:
+```bash
+python -m venv .venv
+# On Windows:
+.venv\Scripts\activate
+# On MacOS/Linux:
+source .venv/bin/activate
+```
 
 3. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-4. Download the shape predictor model (for face detection):
-   ```
-   # Download from dlib's website or use a package manager
-   # Place the file in the project root directory
-   # File name: shape_predictor_68_face_landmarks.dat
-   ```
+4. Download the facial landmark predictor model:
+```bash
+# Option 1: Manual download (recommended)
+# Download from: http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
+# Extract the .bz2 file and place shape_predictor_68_face_landmarks.dat in the project root
 
-5. Run the application:
-   ```
-   python run.py
-   ```
+# Option 2: Using Python (if bz2 module is available)
+python -c "import bz2; import requests; open('shape_predictor_68_face_landmarks.dat', 'wb').write(bz2.decompress(requests.get('http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2').content))"
+```
 
-6. Open your browser and navigate to:
-   ```
-   http://localhost:5000
-   ```
+5. Create necessary data directories:
+```bash
+python create_data_dir.py
+```
 
 ## Usage
 
-### Symptom Checker
-1. Navigate to the "Symptom Checker" page
-2. Enter symptoms separated by commas (e.g., "headache, fever, cough")
-3. Click "Analyze Symptoms" to receive an assessment
+### Running the Flask Web Application
 
-### Heart Rate Monitor
-1. Navigate to the "Heart Rate Monitor" page
-2. Ensure your face is visible to the webcam
-3. Click "Start Monitoring" to begin BPM calculation
-4. Remain still for accurate readings
-5. Customize the graph display using the provided controls
+To run the Flask-based heart rate monitor:
 
-### Combined Assessment
-1. Navigate to the "Complete Assessment" page
-2. Enter symptoms and start heart rate monitoring
-3. View the comprehensive health assessment that combines both analyses
+```bash
+python bpm_app.py
+```
 
-## Customizing BPM Graph
+Then open your browser and navigate to:
+```
+http://127.0.0.1:5000/
+```
 
-The BPM visualization graph can be customized with the following options:
+### Running the Streamlit Dashboard
 
-- **Time Range**: Choose between 30 seconds, 1 minute, 2 minutes, or 5 minutes of data
-- **Line Color**: Select any color for the graph line
-- **Line Thickness**: Choose between thin, normal, or thick line styles
+To run the comprehensive Streamlit dashboard with all features:
 
-## Privacy Notice
+```bash
+streamlit run streamlit_app.py
+```
 
-This application processes health data and webcam footage locally in your browser. No data is sent to external servers except for API calls required for symptom analysis. Webcam access is only used for BPM calculation and is never recorded or stored.
+This will automatically open the application in your default browser.
 
-## Disclaimer
+## Technical Details
 
-HealthAssist AI is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
+### Heart Rate Detection Technique
+
+The application uses Eulerian Video Magnification (EVM) to detect heart rate:
+
+1. **Face Detection**: Using dlib's face detector and landmark predictor to locate the face and important facial points.
+2. **Region of Interest (ROI)**: The forehead region is extracted as it has good blood perfusion and less movement.
+3. **Color Magnification**: Subtle color changes in the skin due to blood flow are amplified.
+4. **Frequency Analysis**: Fast Fourier Transform (FFT) is used to extract the dominant frequency (heart rate).
+5. **Signal Processing**: Various filters are applied to isolate the heart rate signal from noise.
+
+### Optimization Tips
+
+For better performance and accuracy:
+
+- Ensure good, consistent lighting on your face
+- Minimize movement during monitoring
+- Keep your face centered and at a reasonable distance from the camera
+- If using a laptop, connect to power for more consistent webcam performance
+- A higher quality webcam will generally yield better results
+
+## Troubleshooting
+
+### Common Issues
+
+#### Face Detection Problems
+- **Issue**: Application cannot detect a face
+- **Solution**: Improve lighting, ensure face is clearly visible, and try different angles
+
+#### Heart Rate Accuracy
+- **Issue**: Heart rate readings seem inaccurate
+- **Solution**: Stay still, improve lighting, ensure the forehead is clearly visible
+
+#### Performance Issues
+- **Issue**: Application runs slowly
+- **Solution**: Close other applications using the webcam, reduce resolution in settings
+
+### Dependency Issues
+
+If you encounter problems with dlib installation:
+- On Windows, try using the pre-built wheel: `pip install dlib-19.22.99-cp39-cp39-win_amd64.whl` (adjust for your Python version)
+- On Linux, ensure you have CMake and C++ build tools installed: `sudo apt-get install cmake build-essential`
 
 ## License
 
@@ -126,7 +141,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- OpenCV and dlib for computer vision capabilities
-- Chart.js for data visualization
-- Bootstrap for UI components
-- All the contributors to the open-source libraries used in this project 
+- MIT CSAIL for the Eulerian Video Magnification research
+- dlib creators for the face detection algorithms
+
+## About
+
+This project was developed as a showcase of advanced computer vision techniques applied to health monitoring. It is intended for educational and research purposes and is not a certified medical device. 

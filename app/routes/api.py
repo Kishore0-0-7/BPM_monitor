@@ -11,14 +11,35 @@ api_bp = Blueprint('api', __name__)
 def analyze_symptoms():
     try:
         data = request.get_json()
-        symptoms = data.get('symptoms', [])
+        symptom_input = data.get('symptoms', [])
         user_info = data.get('user_info', {})
         
+        # Handle different input formats
+        if isinstance(symptom_input, str):
+            symptoms = [symptom_input]
+        elif isinstance(symptom_input, list):
+            symptoms = symptom_input
+        else:
+            current_app.logger.error(f"Invalid symptom format: {type(symptom_input)}")
+            return jsonify({'error': 'Symptoms must be a string or list of strings'}), 400
+            
+        # Clean up symptoms - remove empty entries and strip whitespace
+        symptoms = [s.strip() for s in symptoms if s and s.strip()]
+        current_app.logger.info(f"Processing symptoms: {symptoms}")
+        
         if not symptoms:
-            return jsonify({'error': 'No symptoms provided'}), 400
+            current_app.logger.warning("No valid symptoms provided for analysis")
+            return jsonify({
+                'possible_conditions': [],
+                'recommendations': ["Please enter symptoms for analysis"],
+                'identified_symptoms': [],
+                'unidentified_symptoms': []
+            })
         
         # Analyze symptoms
-        results = symptom_analyzer.analyze_symptoms(symptoms, user_info)
+        current_app.logger.info(f"Starting analysis of symptoms: {symptoms}")
+        results = symptom_analyzer.analyze(symptoms)
+        current_app.logger.info(f"Analysis completed with results: {results}")
         
         # Add unique analysis ID
         results['analysis_id'] = str(uuid.uuid4())
@@ -28,8 +49,8 @@ def analyze_symptoms():
         
         return jsonify(results)
     except Exception as e:
-        current_app.logger.error(f"Error analyzing symptoms: {str(e)}")
-        return jsonify({'error': 'An error occurred during analysis'}), 500
+        current_app.logger.error(f"Error analyzing symptoms: {str(e)}", exc_info=True)
+        return jsonify({'error': f'An error occurred during analysis: {str(e)}'}), 500
 
 @api_bp.route('/start-bpm-monitor', methods=['POST'])
 def start_bpm_monitor():
@@ -79,7 +100,7 @@ def combined_health_check():
         user_info = data.get('user_info', {})
         
         # Analyze symptoms
-        symptom_results = symptom_analyzer.analyze_symptoms(symptoms, user_info)
+        symptom_results = symptom_analyzer.analyze(symptoms)
         
         # Add BPM analysis
         bpm_analysis = _analyze_bpm(bpm)

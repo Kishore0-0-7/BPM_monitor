@@ -1,0 +1,12 @@
+{
+  "possible_conditions": [],
+  "recommendations": [
+    "Could not match your symptoms to known conditions",
+    "Please consult a healthcare provider for proper diagnosis"
+  ],
+  "identified_symptoms": [],
+  "unidentified_symptoms": [
+    "congustion"
+  ],
+  "analysis_id": "24246a37-b041-4761-ba06-a1e6eabe90c3"
+}

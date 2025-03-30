@@ -1,0 +1,51 @@
+{
+  "possible_conditions": [
+    {
+      "name": "Fever of Unknown Origin",
+      "description": "Elevated body temperature without an immediately obvious cause",
+      "probability": 0.5,
+      "severity": 2,
+      "matching_symptom_count": 2,
+      "matching_symptoms": [
+        "Fever",
+        "Headache"
+      ]
+    },
+    {
+      "name": "Pneumonia",
+      "description": "Infection that inflames air sacs in one or both lungs",
+      "probability": 0.4,
+      "severity": 3,
+      "matching_symptom_count": 2,
+      "matching_symptoms": [
+        "Chest Pain",
+        "Fever"
+      ]
+    },
+    {
+      "name": "Influenza",
+      "description": "A viral infection that attacks respiratory system",
+      "probability": 0.29,
+      "severity": 2,
+      "matching_symptom_count": 2,
+      "matching_symptoms": [
+        "Fever",
+        "Headache"
+      ]
+    }
+  ],
+  "recommendations": [
+    "Rest and stay hydrated",
+    "Consider scheduling a non-urgent appointment with your doctor",
+    "Monitor your symptoms closely for any changes"
+  ],
+  "identified_symptoms": [
+    "Fever",
+    "Common Cold Symptoms",
+    "Headache",
+    "Chest Pain"
+  ],
+  "unidentified_symptoms": [],
+  "disclaimer": "This analysis is for informational purposes only and does not constitute medical advice. Always consult with a qualified healthcare provider for diagnosis and treatment.",
+  "analysis_id": "d281b4db-095d-4ae1-8179-5083546013a9"
+}

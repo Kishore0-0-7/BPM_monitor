@@ -14,5 +14,45 @@
     "severity": 2,
     "triage_level": "Non-urgent medical care",
     "medical_specialty": "General Practice"
+  },
+  "covid": {
+    "id": "C3",
+    "name": "COVID-19",
+    "description": "A respiratory illness caused by the SARS-CoV-2 virus",
+    "severity": 3,
+    "triage_level": "Urgent medical care",
+    "medical_specialty": "Infectious Disease"
+  },
+  "migraine": {
+    "id": "C4",
+    "name": "Migraine",
+    "description": "A primary headache disorder characterized by recurrent headaches",
+    "severity": 2,
+    "triage_level": "Non-urgent medical care",
+    "medical_specialty": "Neurology"
+  },
+  "dehydration": {
+    "id": "C5",
+    "name": "Dehydration",
+    "description": "A condition caused by the loss of too much fluid from the body",
+    "severity": 2,
+    "triage_level": "Non-urgent medical care",
+    "medical_specialty": "General Practice"
+  },
+  "anxiety": {
+    "id": "C6",
+    "name": "Anxiety",
+    "description": "A feeling of worry, nervousness, or unease about something",
+    "severity": 2,
+    "triage_level": "Non-urgent medical care",
+    "medical_specialty": "Mental Health"
+  },
+  "allergies": {
+    "id": "C7",
+    "name": "Allergies",
+    "description": "An immune system response to a substance that most people don't react to",
+    "severity": 1,
+    "triage_level": "Self-care",
+    "medical_specialty": "Allergy and Immunology"
   }
 }

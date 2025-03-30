@@ -261,4 +261,56 @@ The web interface is built using Flask, Bootstrap 5, and JavaScript.
 4. **Resource Requirements**:
    - Minimum 1GB RAM for server
    - CPU with AVX2 instructions recommended for optimal dlib performance
-   - SSD storage for faster loading of models and data 
+   - SSD storage for faster loading of models and data
+
+## Application Runtime and Technologies
+
+### Application Runtime
+
+The HealthAssist AI application runs as a Flask web application:
+
+1. **Entry Point**: The application starts from `run.py` in the root directory
+2. **Flask Application Factory**: Defined in `app/__init__.py` which sets up the Flask instance
+3. **Development Server**: During development, the application runs using Flask's built-in server:
+   ```bash
+   python run.py
+   ```
+4. **Production Deployment**: For production, the application should be deployed with:
+   - A WSGI server (Gunicorn, uWSGI)
+   - HTTPS enabled (required for webcam access)
+   - Environment variables for configuration
+
+### Technologies Used
+
+#### Backend
+- **Python**: Primary programming language
+- **Flask**: Web framework for serving the application
+- **dlib**: Computer vision library used for face detection
+- **NumPy**: Used for numerical operations in signal processing
+- **SciPy**: Used for signal processing in the BPM monitor
+- **Threading**: Python's threading module for parallel processing
+
+#### Frontend
+- **HTML/CSS**: Basic structure and styling
+- **Bootstrap 5**: CSS framework for responsive design
+- **JavaScript**: Client-side interaction and webcam handling
+- **Chart.js**: Used for real-time BPM visualization
+- **Fetch API**: For AJAX communication with backend
+
+#### Data Processing
+- **Eulerian Video Magnification (EVM)**: Algorithm for detecting subtle color changes in video
+- **Fast Fourier Transform (FFT)**: Signal processing technique for BPM calculation
+- **Fuzzy Matching**: For matching user-input symptoms to medical database terms
+- **Bayesian Probability**: Used in symptom analysis for condition likelihood calculation
+
+#### Development Tools
+- **Virtual Environment**: For isolated dependency management
+- **pip**: Package manager for Python dependencies
+- **pytest**: For running automated tests
+
+### System Requirements
+- **Minimum 1GB RAM** for server operation
+- **CPU with AVX2 instructions** recommended for optimal dlib performance
+- **SSD storage** for faster loading of models and data
+- **Webcam** required for heart rate monitoring functionality
+- **Modern browser** with JavaScript and webcam API support

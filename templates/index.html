@@ -1,113 +1,905 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
+    <title>Heart Rate Monitor - HealthAssist AI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heart Rate Monitor</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        .header {
+            background: linear-gradient(135deg, #4a69bd, #1e3799);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
         }
-        h1 {
-            color: #333;
-            text-align: center;
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
         }
         .video-container {
-            width: 100%;
-            margin: 20px 0;
-            text-align: center;
+            flex: 1;
+            min-width: 320px;
+            max-width: 640px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            background-color: #000;
+            position: relative;
         }
-        #video {
-            max-width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        .video-feed {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: opacity 0.2s ease;
         }
         .bpm-display {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
             text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
-        #bpm-value {
-            font-size: 3em;
+        .bpm-value {
+            font-size: 72px;
             font-weight: bold;
-            color: #dc3545;
+            margin: 10px 0;
+            transition: all 0.5s ease;
+            line-height: 1;
+        }
+        .bpm-label {
+            font-size: 18px;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        .normal { color: #2ecc71; text-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
+        .low { color: #3498db; text-shadow: 0 0 10px rgba(52, 152, 219, 0.3); }
+        .elevated { color: #e67e22; text-shadow: 0 0 10px rgba(230, 126, 34, 0.3); }
+        .high { color: #e74c3c; text-shadow: 0 0 10px rgba(231, 76, 60, 0.3); }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        .btn-start {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .btn-stop {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
         .status {
-            margin-top: 5px;
+            margin-top: 15px;
             font-style: italic;
             color: #6c757d;
+            min-height: 24px;
         }
-        .info {
+        
+        /* Pulse animation for BPM */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+        
+        /* Loading animation */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Waveform visualization */
+        .waveform {
+            width: 100%;
+            height: 60px;
             margin-top: 20px;
-            padding: 15px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            font-size: 0.9em;
-            color: #495057;
+            position: relative;
+        }
+        .waveform-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                align-items: center;
+            }
+            .video-container, .bpm-display {
+                width: 100%;
+            }
+            .bpm-value {
+                font-size: 64px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Real-time Heart Rate Monitor</h1>
-        
-        <div class="video-container">
-            <img id="video" src="{{ url_for('video_feed') }}" alt="Video Feed">
-        </div>
-        
-        <div class="bpm-display">
-            <div id="bpm-value">--</div>
-            <div>BPM (Beats Per Minute)</div>
-            <div id="status" class="status">Starting measurement...</div>
-        </div>
-        
-        <div class="info">
-            <h3>How to use:</h3>
-            <p>1. Make sure your face is clearly visible in the video.</p>
-            <p>2. Stay relatively still while the system calculates your heart rate.</p>
-            <p>3. Ensure you have good lighting on your face.</p>
-            <p>4. Wait for approximately 10 seconds for an initial reading.</p>
-            
-            <h3>About:</h3>
-            <p>This application uses Eulerian Video Magnification to detect subtle color changes in your face that correspond to your heart rate.</p>
-            <p>Note: This is an experimental tool and should not be used for medical purposes.</p>
-        </div>
+    <div class="header">
+        <h1>❤️ HealthAssist AI</h1>
+        <p>Real-time Heart Rate Monitor using Computer Vision</p>
     </div>
     
+    <div class="container">
+        <div class="main-content">
+            <div class="video-container">
+                <div id="loading-overlay" class="loading-overlay">
+                    <div class="spinner"></div>
+                </div>
+                <img id="video-feed" src="{{ url_for('video_feed') }}" class="video-feed" alt="Video Feed">
+            </div>
+            
+            <div class="bpm-display">
+                <h2>Heart Rate Monitor</h2>
+                <div class="bpm-label">Beats Per Minute</div>
+                <div id="bpm-value" class="bpm-value normal">--</div>
+                
+                <div class="waveform">
+                    <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
+                </div>
+                
+                <div id="bpm-status" class="status">Please wait, initializing camera...</div>
+                
+                <div class="controls">
+                    <button class="btn btn-start" id="btn-start">Start Monitoring</button>
+                    <button class="btn btn-stop" id="btn-stop" disabled>Stop Monitoring</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Regularly update the BPM value
-        function updateBPM() {
-            fetch('/get_bpm')
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const bpmValue = document.getElementById('bpm-value');
+            const bpmStatus = document.getElementById('bpm-status');
+            const startBtn = document.getElementById('btn-start');
+            const stopBtn = document.getElementById('btn-stop');
+            const videoFeed = document.getElementById('video-feed');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const waveformCanvas = document.getElementById('waveform-canvas');
+            const ctx = waveformCanvas.getContext('2d');
+            
+            // Create elements for signal quality and heart rate category
+            const bpmContainer = document.querySelector('.bpm-display');
+            
+            // Add signal quality indicator if not present
+            let signalQuality = document.getElementById('signal-quality');
+            let signalQualityBar = document.getElementById('signal-quality-bar');
+            let signalQualityValue = document.getElementById('signal-quality-value');
+            
+            if (!signalQuality) {
+                const qualityDiv = document.createElement('div');
+                qualityDiv.innerHTML = `
+                    <div id="signal-quality" class="signal-quality">Signal Quality</div>
+                    <div class="signal-quality-container">
+                        <div id="signal-quality-bar" class="signal-quality-bar"></div>
+                    </div>
+                    <div id="signal-quality-value" class="signal-quality-value">0%</div>
+                `;
+                qualityDiv.className = 'quality-indicator';
+                
+                // Add CSS for signal quality
+                const style = document.createElement('style');
+                style.textContent = `
+                    .quality-indicator {
+                        margin-top: 15px;
+                        text-align: center;
+                    }
+                    .signal-quality {
+                        font-size: 14px;
+                        margin-bottom: 5px;
+                        color: #666;
+                    }
+                    .signal-quality-container {
+                        width: 100%;
+                        height: 6px;
+                        background-color: #eee;
+                        border-radius: 3px;
+                        overflow: hidden;
+                    }
+                    .signal-quality-bar {
+                        height: 100%;
+                        width: 0%;
+                        background-color: #2ecc71;
+                        transition: width 0.5s ease, background-color 0.5s ease;
+                    }
+                    .signal-quality-bar.poor { background-color: #e74c3c; }
+                    .signal-quality-bar.moderate { background-color: #f39c12; }
+                    .signal-quality-bar.good { background-color: #2ecc71; }
+                    .signal-quality-value {
+                        font-size: 12px;
+                        margin-top: 5px;
+                        color: #666;
+                    }
+                    /* Fix for categories */
+                    .bpm-category {
+                        font-size: 14px;
+                        font-weight: bold;
+                        margin-top: 5px;
+                        padding: 3px 10px;
+                        border-radius: 12px;
+                        display: inline-block;
+                        color: white;
+                    }
+                    .bpm-category.bradycardia { background-color: #3498db; }
+                    .bpm-category.normal { background-color: #2ecc71; }
+                    .bpm-category.tachycardia { background-color: #e67e22; }
+                `;
+                document.head.appendChild(style);
+                
+                bpmContainer.insertBefore(qualityDiv, bpmStatus);
+                
+                signalQuality = document.getElementById('signal-quality');
+                signalQualityBar = document.getElementById('signal-quality-bar');
+                signalQualityValue = document.getElementById('signal-quality-value');
+            }
+            
+            // Add heart rate category if not present
+            let bpmCategory = document.getElementById('bpm-category');
+            if (!bpmCategory) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.id = 'bpm-category';
+                categoryDiv.className = 'bpm-category normal';
+                categoryDiv.textContent = 'Normal';
+                
+                // Insert after bpm value
+                bpmValue.parentNode.insertBefore(categoryDiv, bpmValue.nextSibling);
+                bpmCategory = categoryDiv;
+            }
+            
+            // Variables for data handling
+            let pollingInterval = null;
+            let previousBpm = 0;
+            let waveformData = [];
+            let isMonitoring = false;
+            let waveformAnimationId = null;
+            let consecutiveErrorCount = 0;
+            const MAX_WAVEFORM_POINTS = 100;
+            let startTime = 0;
+            
+            // Buffer for smoothing BPM values
+            let bpmBuffer = [];
+            const BPM_BUFFER_SIZE = 5;
+            
+            // For UI error recovery
+            let lastGoodState = {
+                bpm: 0,
+                signalQuality: 0,
+                category: 'normal'
+            };
+            
+            // Handle video loading
+            videoFeed.onload = function() {
+                loadingOverlay.style.display = 'none';
+            };
+            
+            videoFeed.onerror = function() {
+                bpmStatus.textContent = "Error loading video feed. Please refresh the page.";
+                loadingOverlay.style.display = 'none';
+                retryVideoFeed();
+            };
+            
+            // Function to retry loading video feed
+            function retryVideoFeed() {
+                console.log("Attempting to reload video feed...");
+                setTimeout(() => {
+                    if (isMonitoring) {
+                        videoFeed.src = videoFeed.src.split('?')[0] + '?t=' + new Date().getTime();
+                    }
+                }, 2000);
+            }
+            
+            // Set canvas size
+            function resizeCanvas() {
+                const ratio = window.devicePixelRatio || 1;
+                waveformCanvas.width = waveformCanvas.offsetWidth * ratio;
+                waveformCanvas.height = waveformCanvas.offsetHeight * ratio;
+                ctx.scale(ratio, ratio);
+            }
+            
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Draw smooth waveform with anti-aliasing
+            function drawWaveform() {
+                if (!isMonitoring) return;
+                
+                // Clear canvas with high quality clearing
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
+                
+                if (waveformData.length < 2) return;
+                
+                const width = waveformCanvas.width;
+                const height = waveformCanvas.height;
+                const step = width / (waveformData.length - 1);
+                
+                // Add smooth curve with bezier
+                ctx.beginPath();
+                ctx.moveTo(0, height / 2);
+                
+                // Use bezier curves for smoother appearance
+                let i = 0;
+                ctx.lineTo(0, height / 2 - (waveformData[0] * height / 4));
+                
+                for (i = 0; i < waveformData.length - 2; i++) {
+                    const x1 = i * step;
+                    const y1 = height / 2 - (waveformData[i] * height / 4);
+                    const x2 = (i + 1) * step;
+                    const y2 = height / 2 - (waveformData[i + 1] * height / 4);
+                    
+                    const cpx1 = x1 + step / 3;
+                    const cpy1 = y1;
+                    const cpx2 = x2 - step / 3;
+                    const cpy2 = y2;
+                    
+                    ctx.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, x2, y2);
+                }
+                
+                // Add final point
+                if (i < waveformData.length - 1) {
+                    const x = i * step;
+                    const y = height / 2 - (waveformData[i] * height / 4);
+                    const x2 = (i + 1) * step;
+                    const y2 = height / 2 - (waveformData[i + 1] * height / 4);
+                    ctx.lineTo(x2, y2);
+                }
+                
+                // Style for the waveform line
+                ctx.strokeStyle = getBpmColor(previousBpm);
+                ctx.lineWidth = 3;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                
+                // Enable anti-aliasing
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
+                // Stroke with shadow for better appearance
+                ctx.shadowColor = getBpmColor(previousBpm);
+                ctx.shadowBlur = 5;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                
+                // Draw a subtle grid
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(200, 200, 200, 0.2)';
+                ctx.lineWidth = 1;
+                ctx.moveTo(0, height / 2);
+                ctx.lineTo(width, height / 2);
+                ctx.stroke();
+                
+                waveformAnimationId = requestAnimationFrame(drawWaveform);
+            }
+            
+            // More realistic waveform data generation based on BPM
+            function updateWaveformData(bpm) {
+                if (bpm <= 0) return;
+                
+                // Calculate wave frequency based on BPM
+                const frequency = bpm / 60; // beats per second
+                const sampleRate = 30; // samples per second
+                
+                // Keep existing points if available (for smoother transitions)
+                if (waveformData.length < MAX_WAVEFORM_POINTS) {
+                    // Initial fill
+                    const startOffset = waveformData.length;
+                    for (let i = startOffset; i < MAX_WAVEFORM_POINTS; i++) {
+                        const time = i / sampleRate;
+                        const phase = 2 * Math.PI * frequency * time + (Date.now() / 1000);
+                        
+                        // Create a more realistic cardiac waveform shape
+                        // Systolic peak (QRS complex)
+                        const qrs = Math.pow(Math.sin(phase), 3);
+                        
+                        // Diastolic waveform (T wave)
+                        const t_wave = 0.3 * Math.sin(phase * 2 + 0.6);
+                        
+                        // Combined waveform with slight noise
+                        const noise = 0.05 * (Math.random() - 0.5);
+                        waveformData.push(qrs + t_wave + noise);
+                    }
+                } else {
+                    // Shift data and add new point
+                    waveformData.shift();
+                    
+                    // Get time based on the last cycle
+                    const time = waveformData.length / sampleRate;
+                    const phase = 2 * Math.PI * frequency * time + (Date.now() / 1000);
+                    
+                    // Same waveform generation as above
+                    const qrs = Math.pow(Math.sin(phase), 3);
+                    const t_wave = 0.3 * Math.sin(phase * 2 + 0.6);
+                    const noise = 0.05 * (Math.random() - 0.5);
+                    waveformData.push(qrs + t_wave + noise);
+                }
+            }
+            
+            // Get color based on BPM range
+            function getBpmColor(bpm) {
+                if (bpm < 60) return '#3498db'; // low
+                if (bpm > 100) return '#e67e22'; // elevated
+                if (bpm > 140) return '#e74c3c'; // high
+                return '#2ecc71'; // normal
+            }
+            
+            // Get class based on BPM range
+            function getBpmClass(bpm) {
+                if (bpm < 60) return 'bpm-value low';
+                if (bpm > 100) return 'bpm-value elevated';
+                if (bpm > 140) return 'bpm-value high';
+                return 'bpm-value normal';
+            }
+            
+            // Get category text and class
+            function getBpmCategory(bpm) {
+                if (bpm < 60) {
+                    return {
+                        text: 'Bradycardia',
+                        className: 'bpm-category bradycardia'
+                    };
+                } else if (bpm > 100) {
+                    return {
+                        text: 'Tachycardia',
+                        className: 'bpm-category tachycardia'
+                    };
+                } else {
+                    return {
+                        text: 'Normal',
+                        className: 'bpm-category normal'
+                    };
+                }
+            }
+            
+            // Update BPM display with smooth transition and anti-flicker
+            function updateBpmDisplay(bpm, signalQualityValue) {
+                // Only update if there's a significant change or initial value
+                if (Math.abs(bpm - previousBpm) >= 1 || bpm === 0 || previousBpm === 0) {
+                    // Add to buffer for smoothing
+                    bpmBuffer.push(bpm);
+                    if (bpmBuffer.length > BPM_BUFFER_SIZE) {
+                        bpmBuffer.shift();
+                    }
+                    
+                    // Calculate smoothed value (discard outliers)
+                    let validValues = [...bpmBuffer];
+                    if (validValues.length > 0) {
+                        // Sort values to identify outliers
+                        validValues.sort((a, b) => a - b);
+                        
+                        // Remove highest and lowest if we have enough values
+                        if (validValues.length >= 4) {
+                            validValues = validValues.slice(1, -1);
+                        }
+                        
+                        // Average the remaining values
+                        const sum = validValues.reduce((sum, val) => sum + val, 0);
+                        const smoothedBpm = Math.round(sum / validValues.length);
+                        
+                        // Only update display if valid value
+                        if (smoothedBpm > 0 && smoothedBpm !== parseInt(bpmValue.textContent)) {
+                            // Add pulse animation
+                            bpmValue.classList.add('pulse');
+                            
+                            // Remove pulse after animation completes
+                            setTimeout(() => {
+                                bpmValue.classList.remove('pulse');
+                            }, 1000);
+                            
+                            // Update value and class
+                            bpmValue.textContent = smoothedBpm;
+                            bpmValue.className = getBpmClass(smoothedBpm);
+                            
+                            // Update category
+                            const category = getBpmCategory(smoothedBpm);
+                            bpmCategory.textContent = category.text;
+                            bpmCategory.className = category.className;
+                            
+                            // Save good state for error recovery
+                            lastGoodState.bpm = smoothedBpm;
+                            lastGoodState.category = category.text;
+                        }
+                    }
+                    
+                    previousBpm = bpm;
+                }
+                
+                // Update signal quality if provided
+                if (signalQualityValue !== undefined && signalQualityBar && signalQualityValue) {
+                    const qualityPercent = Math.round(signalQualityValue);
+                    signalQualityValue.textContent = `${qualityPercent}%`;
+                    
+                    // Update signal quality bar with smooth animation
+                    signalQualityBar.style.width = `${qualityPercent}%`;
+                    
+                    // Update color based on quality
+                    if (qualityPercent < 30) {
+                        signalQualityBar.className = 'signal-quality-bar poor';
+                        bpmStatus.textContent = "Low signal quality. Please adjust lighting or position.";
+                    } else if (qualityPercent < 70) {
+                        signalQualityBar.className = 'signal-quality-bar moderate';
+                        bpmStatus.textContent = "Moderate signal quality. Heart rate may fluctuate.";
+                    } else {
+                        signalQualityBar.className = 'signal-quality-bar good';
+                        
+                        // Only show normal status when quality is good
+                        const category = getBpmCategory(previousBpm);
+                        if (category.text === 'Bradycardia') {
+                            bpmStatus.textContent = "Low heart rate detected";
+                        } else if (category.text === 'Tachycardia') {
+                            bpmStatus.textContent = "Elevated heart rate detected";
+                        } else {
+                            bpmStatus.textContent = "Normal heart rate";
+                        }
+                    }
+                    
+                    // Save for error recovery
+                    lastGoodState.signalQuality = qualityPercent;
+                }
+            }
+            
+            // Function to update BPM with error handling and retry logic
+            function updateBPM() {
+                if (!isMonitoring) return;
+
+                fetch('/get_bpm')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Reset error counter on success
+                        consecutiveErrorCount = 0;
+                        
+                        // Hide loading overlay once we have valid data
+                        if (loadingOverlay.style.display !== 'none') {
+                            loadingOverlay.style.display = 'none';
+                        }
+
+                        // Check if we have a valid BPM value
+                        if (data.ready && data.bpm > 0) {
+                            // Remove any position hints if BPM is detected successfully
+                            const hint = document.getElementById('face-position-hint');
+                            if (hint) {
+                                hint.remove();
+                            }
+                            
+                            // Update BPM value and generate waveform
+                            updateBpmDisplay(data.bpm, data.signal_quality);
+                            updateWaveformData(data.bpm);
+                            
+                            // Update status based on heart rate category
+                            if (data.category === 'low') {
+                                bpmStatus.textContent = "Low heart rate detected";
+                            } else if (data.category === 'elevated' || data.category === 'high') {
+                                bpmStatus.textContent = "Elevated heart rate detected";
+                            } else if (data.category === 'normal') {
+                                bpmStatus.textContent = "Normal heart rate";
+                            }
+                        } else {
+                            // Handle calculation in progress
+                            if (data.monitoring) {
+                                bpmStatus.textContent = "Calculating heart rate, please wait...";
+                                
+                                // If signal quality is low or BPM not found yet, show positioning tip
+                                const elapsedTime = new Date().getTime() - startTime;
+                                if ((data.signal_quality < 30 || !data.ready) && elapsedTime > 3000) {
+                                    // Show position hint
+                                    if (!document.getElementById('face-position-hint')) {
+                                        const hintDiv = document.createElement('div');
+                                        hintDiv.id = 'face-position-hint';
+                                        hintDiv.className = 'position-hint';
+                                        hintDiv.innerHTML = `
+                                            <div class="hint-content">
+                                                <div class="hint-title">⚠️ Position Tips:</div>
+                                                <ul>
+                                                    <li>Face camera directly</li>
+                                                    <li>Ensure good lighting</li>
+                                                    <li>Keep forehead visible</li>
+                                                    <li>Avoid moving too much</li>
+                                                    <li>Move closer to the camera</li>
+                                                </ul>
+                                            </div>
+                                        `;
+                                        
+                                        // Add CSS for the hints if not already added
+                                        if (!document.getElementById('hint-styles')) {
+                                            const hintStyle = document.createElement('style');
+                                            hintStyle.id = 'hint-styles';
+                                            hintStyle.textContent = `
+                                                .position-hint {
+                                                    position: absolute;
+                                                    top: 10px;
+                                                    left: 10px;
+                                                    background-color: rgba(0,0,0,0.7);
+                                                    color: white;
+                                                    padding: 10px;
+                                                    border-radius: 8px;
+                                                    font-size: 14px;
+                                                    max-width: 80%;
+                                                    z-index: 100;
+                                                    animation: fade-in 0.5s ease;
+                                                }
+                                                @keyframes fade-in {
+                                                    from { opacity: 0; }
+                                                    to { opacity: 1; }
+                                                }
+                                                .hint-content {
+                                                    display: flex;
+                                                    flex-direction: column;
+                                                }
+                                                .hint-title {
+                                                    font-weight: bold;
+                                                    margin-bottom: 5px;
+                                                }
+                                                .position-hint ul {
+                                                    margin: 0;
+                                                    padding-left: 20px;
+                                                }
+                                                .position-hint li {
+                                                    margin: 3px 0;
+                                                }
+                                            `;
+                                            document.head.appendChild(hintStyle);
+                                        }
+                                        
+                                        // Add to video container
+                                        document.querySelector('.video-container').appendChild(hintDiv);
+                                    }
+                                }
+                            } else {
+                                // If not monitoring, display appropriate message
+                                bpmStatus.textContent = "Press 'Start Monitoring' to begin";
+                                bpmValue.textContent = "--";
+                                
+                                // Update signal quality to 0%
+                                if (signalQualityBar && signalQualityValue) {
+                                    signalQualityBar.style.width = "0%";
+                                    signalQualityValue.textContent = "0%";
+                                }
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching BPM:', error);
+                        consecutiveErrorCount++;
+                        
+                        if (consecutiveErrorCount > 5) {
+                            bpmStatus.textContent = "Error detecting heart rate";
+                            
+                            // Show restart button after several errors
+                            if (consecutiveErrorCount > 10 && !document.getElementById('retry-button')) {
+                                // Add restart button
+                                const restartBtn = document.createElement('button');
+                                restartBtn.id = 'retry-button';
+                                restartBtn.className = 'btn btn-start';
+                                restartBtn.style.marginTop = '10px';
+                                restartBtn.textContent = 'Restart Monitoring';
+                                restartBtn.onclick = function() {
+                                    // Restart monitoring
+                                    stopMonitoring();
+                                    setTimeout(() => {
+                                        startMonitoring();
+                                    }, 1000);
+                                };
+                                bpmStatus.parentNode.appendChild(restartBtn);
+                            }
+                        }
+                    });
+            }
+            
+            // Function to restart monitoring
+            function restartMonitoring() {
+                // Only try restart if currently monitoring
+                if (isMonitoring) {
+                    console.log("Attempting to restart monitoring...");
+                    
+                    // Call stop then start with a small delay
+                    fetch('/stop_monitoring', { method: 'POST' })
+                        .then(() => {
+                            setTimeout(() => {
+                                if (isMonitoring) {
+                                    // Only restart if still in monitoring state
+                                    startMonitoring(true); // true = is restart
+                                }
+                            }, 1000);
+                        })
+                        .catch(err => {
+                            console.error("Error stopping monitoring for restart:", err);
+                        });
+                }
+            }
+            
+            // Start monitoring function
+            function startMonitoring(isRestart = false) {
+                // Update UI state
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                
+                // Set start time for timing hints
+                startTime = new Date().getTime();
+                
+                // Remove any position hints
+                const hint = document.getElementById('face-position-hint');
+                if (hint) {
+                    hint.remove();
+                }
+                
+                if (!isRestart) {
+                    loadingOverlay.style.display = 'flex';
+                    bpmStatus.textContent = "Starting heart rate monitoring...";
+                    
+                    // Reset data
+                    bpmBuffer = [];
+                    waveformData = [];
+                    consecutiveErrorCount = 0;
+                } else {
+                    bpmStatus.textContent = "Restarting heart rate monitoring...";
+                }
+                
+                // Call the start_monitoring endpoint
+                fetch('/start_monitoring', {
+                    method: 'POST'
+                })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.status === 'ready') {
-                        document.getElementById('bpm-value').textContent = data.bpm;
-                        document.getElementById('status').textContent = 'Measurement active';
-                    } else {
-                        document.getElementById('status').textContent = 'Calculating heart rate...';
+                    console.log('Monitoring started:', data);
+                    
+                    // Force reload the image src to restart the stream with cache-busting
+                    videoFeed.src = videoFeed.src.split('?')[0] + '?t=' + new Date().getTime();
+                    
+                    // Set monitoring state
+                    isMonitoring = true;
+                    
+                    // Start polling for BPM updates (every 333ms for more responsive updates)
+                    if (pollingInterval) clearInterval(pollingInterval);
+                    pollingInterval = setInterval(updateBPM, 333);
+                    
+                    // Start waveform animation
+                    if (!waveformAnimationId) {
+                        waveformAnimationId = requestAnimationFrame(drawWaveform);
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching BPM:', error);
-                    document.getElementById('status').textContent = 'Error getting heart rate data';
+                    console.error('Error starting monitoring:', error);
+                    bpmStatus.textContent = "Error starting monitoring. Please try again.";
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    loadingOverlay.style.display = 'none';
                 });
-        }
-        
-        // Update BPM every 1 second
-        setInterval(updateBPM, 1000);
+            }
+            
+            // Stop monitoring function
+            function stopMonitoring() {
+                // First disable buttons to prevent multiple clicks
+                startBtn.disabled = true;
+                stopBtn.disabled = true;
+                bpmStatus.textContent = "Stopping monitoring...";
+                
+                // Remove any position hints
+                const hint = document.getElementById('face-position-hint');
+                if (hint) {
+                    hint.remove();
+                }
+                
+                // Call the stop_monitoring endpoint
+                fetch('/stop_monitoring', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Monitoring stopped:', data);
+                    
+                    // Update UI
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    bpmStatus.textContent = "Monitoring stopped";
+                    
+                    // Stop monitoring
+                    isMonitoring = false;
+                    
+                    // Clear polling interval
+                    if (pollingInterval) {
+                        clearInterval(pollingInterval);
+                        pollingInterval = null;
+                    }
+                    
+                    // Stop waveform animation
+                    if (waveformAnimationId) {
+                        cancelAnimationFrame(waveformAnimationId);
+                        waveformAnimationId = null;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error stopping monitoring:', error);
+                    bpmStatus.textContent = "Error stopping monitoring.";
+                    startBtn.disabled = false;
+                    stopBtn.disabled = false;
+                });
+            }
+            
+            // Button event listeners
+            startBtn.addEventListener('click', function() {
+                startMonitoring();
+            });
+            
+            stopBtn.addEventListener('click', function() {
+                stopMonitoring();
+            });
+        });
     </script>
 </body>
 </html> 

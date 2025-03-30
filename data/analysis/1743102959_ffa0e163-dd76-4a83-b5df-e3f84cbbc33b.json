@@ -1,0 +1,50 @@
+{
+  "possible_conditions": [
+    {
+      "name": "Fever of Unknown Origin",
+      "description": "Elevated body temperature without an immediately obvious cause",
+      "probability": 0.5,
+      "severity": 2,
+      "matching_symptom_count": 2,
+      "matching_symptoms": [
+        "Headache",
+        "Fever"
+      ]
+    },
+    {
+      "name": "Gastroenteritis",
+      "description": "Inflammation of the stomach and intestines",
+      "probability": 0.4,
+      "severity": 2,
+      "matching_symptom_count": 2,
+      "matching_symptoms": [
+        "Fever",
+        "Vomiting"
+      ]
+    },
+    {
+      "name": "Influenza",
+      "description": "A viral infection that attacks respiratory system",
+      "probability": 0.29,
+      "severity": 2,
+      "matching_symptom_count": 2,
+      "matching_symptoms": [
+        "Headache",
+        "Fever"
+      ]
+    }
+  ],
+  "recommendations": [
+    "Rest and stay hydrated",
+    "Consider scheduling a non-urgent appointment with your doctor",
+    "Monitor your symptoms closely for any changes"
+  ],
+  "identified_symptoms": [
+    "Fever",
+    "Vomiting",
+    "Headache"
+  ],
+  "unidentified_symptoms": [],
+  "disclaimer": "This analysis is for informational purposes only and does not constitute medical advice. Always consult with a qualified healthcare provider for diagnosis and treatment.",
+  "analysis_id": "ffa0e163-dd76-4a83-b5df-e3f84cbbc33b"
+}

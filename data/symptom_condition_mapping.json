@@ -1,13 +1,49 @@
 {
-  "common_cold": [
-    "headache",
-    "cough",
-    "fatigue"
+  "headache": [
+    "common_cold",
+    "influenza",
+    "covid",
+    "migraine",
+    "dehydration",
+    "anxiety"
   ],
-  "influenza": [
-    "fever",
-    "headache",
-    "fatigue",
-    "cough"
+  "fever": [
+    "common_cold",
+    "influenza",
+    "covid"
+  ],
+  "cough": [
+    "common_cold",
+    "influenza",
+    "covid",
+    "allergies"
+  ],
+  "fatigue": [
+    "common_cold",
+    "influenza",
+    "covid",
+    "dehydration",
+    "anxiety"
+  ],
+  "nausea": [
+    "influenza",
+    "migraine",
+    "dehydration",
+    "anxiety"
+  ],
+  "shortness_of_breath": [
+    "covid",
+    "anxiety",
+    "allergies"
+  ],
+  "sore_throat": [
+    "common_cold",
+    "influenza",
+    "allergies"
+  ],
+  "dizziness": [
+    "dehydration",
+    "anxiety",
+    "migraine"
   ]
 }

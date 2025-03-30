@@ -1,0 +1,18 @@
+{
+  "possible_conditions": [],
+  "recommendations": [
+    "Consult a healthcare provider for proper diagnosis"
+  ],
+  "identified_symptoms": [
+    {
+      "id": "fever",
+      "name": "Fever",
+      "description": "Elevated body temperature above normal range"
+    }
+  ],
+  "unidentified_symptoms": [
+    "cold"
+  ],
+  "disclaimer": "This analysis is for informational purposes only and does not constitute medical advice. Always consult with a qualified healthcare provider for diagnosis and treatment.",
+  "analysis_id": "2fa212a7-ae4d-4de6-9965-d8ad13ea656c"
+}

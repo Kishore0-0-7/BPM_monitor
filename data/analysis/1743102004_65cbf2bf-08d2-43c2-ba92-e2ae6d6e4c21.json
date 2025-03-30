@@ -1,0 +1,46 @@
+{
+  "possible_conditions": [
+    {
+      "name": "Fever of Unknown Origin",
+      "description": "Elevated body temperature without an immediately obvious cause",
+      "probability": 0.25,
+      "severity": 2,
+      "matching_symptom_count": 1,
+      "matching_symptoms": [
+        "Fever"
+      ]
+    },
+    {
+      "name": "Pneumonia",
+      "description": "Infection that inflames air sacs in one or both lungs",
+      "probability": 0.2,
+      "severity": 3,
+      "matching_symptom_count": 1,
+      "matching_symptoms": [
+        "Fever"
+      ]
+    },
+    {
+      "name": "Gastroenteritis",
+      "description": "Inflammation of the stomach and intestines",
+      "probability": 0.2,
+      "severity": 2,
+      "matching_symptom_count": 1,
+      "matching_symptoms": [
+        "Fever"
+      ]
+    }
+  ],
+  "recommendations": [
+    "Rest and stay hydrated",
+    "Consider scheduling a non-urgent appointment with your doctor",
+    "Monitor your symptoms closely for any changes"
+  ],
+  "identified_symptoms": [
+    "Fever",
+    "Common Cold Symptoms"
+  ],
+  "unidentified_symptoms": [],
+  "disclaimer": "This analysis is for informational purposes only and does not constitute medical advice. Always consult with a qualified healthcare provider for diagnosis and treatment.",
+  "analysis_id": "65cbf2bf-08d2-43c2-ba92-e2ae6d6e4c21"
+}

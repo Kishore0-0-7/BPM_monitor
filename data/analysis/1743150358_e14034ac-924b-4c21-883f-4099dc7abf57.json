@@ -1,0 +1,12 @@
+{
+  "possible_conditions": [],
+  "recommendations": [
+    "Could not match your symptoms to known conditions",
+    "Please consult a healthcare provider for proper diagnosis"
+  ],
+  "identified_symptoms": [],
+  "unidentified_symptoms": [
+    "constupation"
+  ],
+  "analysis_id": "e14034ac-924b-4c21-883f-4099dc7abf57"
+}

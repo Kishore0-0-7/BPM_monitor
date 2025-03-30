@@ -4,23 +4,42 @@ Werkzeug==2.3.7
 Jinja2==3.1.2
 itsdangerous==2.1.2
 click==8.1.7
+flask_sqlalchemy
+flask_login
 
-# Computer Vision
+# NLP & Symptom Analysis
+nltk==3.8.1
+sentence-transformers==2.2.2
+scikit-learn==1.2.2  # Downgraded for Python 3.12 compatibility
+pandas==1.5.3  # Downgraded for compatibility
+
+# Computer Vision - Core
 opencv-python==4.8.0.76
-dlib==19.24.1
-numpy==1.25.2
-scipy==1.11.2
+# System requirements for dlib:
+# sudo apt-get update
+# sudo apt-get install -y cmake build-essential libx11-dev libatlas-base-dev
+# sudo apt-get install -y python3-dev python3-pip
+# sudo apt-get install -y libopenblas-dev
+#dlib  # Install with: pip install dlib --no-cache-dir --verbose
 
-# Data Processing
-pandas==2.1.0
-scikit-learn==1.3.0
+# Data Processing & Math
+numpy  # Specific version for Python 3.12 compatibility
+scipy  # Updated to latest stable version for Python 3.12
+
+# Computer Vision - Advanced (optional but enhances performance)
+mediapipe  # Google's ML solution for face/body tracking
+face-recognition  # Simplified facial recognition
+
+#Signal Processing
+statsmodels==0.14.0  # For advanced time series analysis
+PyWavelets==1.5.0  # Wavelet transformations for better signal processing
 
 # Utilities
 python-dotenv==1.0.0
 requests==2.31.0
 pyjwt==2.8.0
 pytz==2023.3
-Pillow==10.0.0
+Pillow==9.5.0
 
 # Development & Testing
 pytest==7.4.0
@@ -29,4 +48,17 @@ flake8==6.1.0
 black==23.7.0
 
 # Production
-gunicorn==21.2.0 
+gunicorn==21.2.0
+
+# Streamlit Integration
+streamlit==1.25.0
+streamlit-webrtc==0.45.0
+st-annotated-text==4.0.0
+
+# Report Generation
+reportlab==4.0.4
+fpdf==1.7.2
+matplotlib==3.7.2
+seaborn==0.12.2
+jinja2-time==0.2.0
+weasyprint==59.0
